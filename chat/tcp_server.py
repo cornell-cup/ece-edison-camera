@@ -1,5 +1,7 @@
 # TCP Server with Edison
-import socket, select
+import socket
+import select
+import thread 
 
 def server_details(sock):
     # Send details about this server to the appropriate socket 
@@ -16,11 +18,26 @@ def server_details(sock):
         sock.close()
         CONNECTION_LIST.remove(sock)
 
+
+# CURRENTLY UNUSED BECAUSE IT DOES NOT FIT WITH THIS CODE
+def client_thread(sock):
+    # Send message to connected client
+    sock.send('Connected to the server. Type something and hit enter\n')
+
+    # infinite loop so thread does not end
+    while True:
+        data = sock.recv(4096)
+        msg = 'You sent: ' + data
+        if not data:
+            break
+        sock.sendall(msg)
+    sock.close()
+
 if __name__ == "__main__":
     # List to keep track of socket descriptors
     CONNECTION_LIST = []
     RECV_BUFFER = 4096
-    PORT = 6798
+    PORT = 6789
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(("", PORT))
