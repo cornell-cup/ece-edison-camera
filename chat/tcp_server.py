@@ -5,9 +5,12 @@ def server_details(sock):
     # Send details about this server to the appropriate socket 
     server_name = 'jEdison'
     server_version = 1
-    try : 
-        sock.send('\r' + 'Server name: ' + server_name )#+ '/r/n')
-        sock.send('Server version: ' + str(server_version))# + '/r/n')
+    try :
+        msg = '\r' + 'Server name: ' + server_name + '\n'
+        msg += 'Server version: ' + str(server_version) +'\n' 
+        sock.sendall(msg) 
+        #sock.sendall('\r' + 'Server name: ' + server_name + '\n' + 'Server version: ' + str(server_version))
+        #sock.send('Server version: ' + str(server_version))# + '/r/n')
     except:
         # broken socket connection 
         sock.close()
@@ -17,7 +20,7 @@ if __name__ == "__main__":
     # List to keep track of socket descriptors
     CONNECTION_LIST = []
     RECV_BUFFER = 4096
-    PORT = 6789
+    PORT = 6798
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(("", PORT))
@@ -47,7 +50,7 @@ if __name__ == "__main__":
                         server_details(sock)
                     else: 
                         sock.send('This is what you sent: ' + data)
-                        server_details(sock)
+                        #server_details(sock)
                 except: 
                     print "Client (%s, %s) is offline" % addr
                     sock.close()
