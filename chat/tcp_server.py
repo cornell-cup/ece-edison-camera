@@ -2,10 +2,11 @@
 import socket
 import select
 import thread 
+import mraa
 
 def server_details(sock):
     # Send details about this server to the appropriate socket 
-    server_name = 'jEdison'
+    server_name = 'Edison - Judy'
     server_version = 1
     try :
         msg = '\r' + 'Server name: ' + server_name + '\n'
@@ -17,6 +18,21 @@ def server_details(sock):
         # broken socket connection 
         sock.close()
         CONNECTION_LIST.remove(sock)
+
+def read_pin(pin_num):
+    # returns a value from the pin
+    x = mraa.Gpio(pin_num)
+    x.dir(mraa.DIR_IN)
+    return x.read()
+
+
+def write_pin(pin_num, val):
+    # writes value to pin
+    x = mraa.Gpio(pin_num)
+    x.dir(mraa.DIR_OUT)
+    x.write(val)
+    print 'Value written to pin: %s' % str(pin_num)
+
 
 
 # CURRENTLY UNUSED BECAUSE IT DOES NOT FIT WITH THIS CODE
@@ -65,6 +81,9 @@ if __name__ == "__main__":
                     data = sock.recv(RECV_BUFFER)
                     if 'server data' in data:
                         server_details(sock)
+                    if 'read_pin' in data:
+                        aRead = read_pin(11)
+                        sock.send('Pin value ' + str(aRead))
                     else: 
                         sock.send('This is what you sent: ' + data)
                         #server_details(sock)
