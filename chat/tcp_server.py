@@ -6,7 +6,7 @@ import mraa
 
 def server_details(sock):
     # Send details about this server to the appropriate socket 
-    server_name = 'Edison - Judy'
+    server_name = 'Edison - Yoda'
     server_version = 1
     try :
         msg = '\r' + 'Server name: ' + server_name + '\n'
@@ -33,8 +33,6 @@ def write_pin(pin_num, val):
     x.write(val)
     print 'Value written to pin: %s' % str(pin_num)
 
-
-
 # CURRENTLY UNUSED BECAUSE IT DOES NOT FIT WITH THIS CODE
 def client_thread(sock):
     # Send message to connected client
@@ -48,6 +46,31 @@ def client_thread(sock):
             break
         sock.sendall(msg)
     sock.close()
+
+def parse_msg(sock, msg):
+    # parse msg
+    if 'server data' in msg:
+        server_details(sock)
+    elif 'read_pin 1' in msg:
+        sock.send('Pin value: ' + str(read_pin(1)) + '\n')
+    elif 'read_pin 2' in msg:
+        sock.send('Pin value: ' + str(read_pin(2)) + '\n')
+    elif 'read_pin 11' in msg:
+        sock.send('Pin value: ' + str(read_pin(11)) + '\n')
+    elif 'write_pin 1 high' in msg:
+        write_pin(1,1)
+        sock.send('Value is written to pin 1\n')
+    elif 'write_pin 1 low' in msg:
+        write_pin(1,0)
+        sock.send('Value is written to pin 1\n')
+    elif 'write_pin 11 high' in msg:
+        write_pin(11, 1)
+        sock.send('Value is written to pin 11\n')
+    elif 'write_pin 11 low' in msg:
+        write_pin(11, 0)
+        sock.send('Value is written to pin 11\n')
+    else:       
+        sock.send('ECHO: ' + msg)
 
 if __name__ == "__main__":
     # List to keep track of socket descriptors
@@ -79,14 +102,15 @@ if __name__ == "__main__":
             else: 
                 try:
                     data = sock.recv(RECV_BUFFER)
-                    if 'server data' in data:
-                        server_details(sock)
-                    if 'read_pin' in data:
-                        aRead = read_pin(11)
-                        sock.send('Pin value ' + str(aRead))
-                    else: 
-                        sock.send('This is what you sent: ' + data)
-                        #server_details(sock)
+                    parse_msg(sock, data)
+                    #if 'server data' in data:
+                    #    server_details(sock)
+                    #if 'read_pin' in data:
+                    #    aRead = read_pin(11)
+                    #    sock.send('Pin value ' + str(aRead))
+                    #else: 
+                    #    sock.send('This is what you sent: ' + data)
+                    #    #server_details(sock)
                 except: 
                     print "Client (%s, %s) is offline" % addr
                     sock.close()
